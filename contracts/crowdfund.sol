@@ -28,6 +28,12 @@ contract crowdfund{
         _;
     }
 
+    modifier getRefundValidators() {
+        require(block.timestamp > deadline && raisedAmount < goal, "The target is met!");
+        require(contributors[msg.sender] != 0, "You are not in the contributors list");
+        _;
+    }
+
     function contribute() public payable validateDeadline validateMinimumContribution{
         if(contributors[msg.sender] == 0){
             noOfContributors++;
@@ -42,5 +48,10 @@ contract crowdfund{
 
     function getBalance() public view returns (uint){
         return address(this).balance;
+    }
+
+    function getRefund () public getRefundValidators{
+        payable(msg.sender).transfer(contributors[msg.sender]);
+        contributors[msg.sender] = 0;
     }
 }
